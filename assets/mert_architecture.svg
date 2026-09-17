@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="1180" viewBox="0 0 860 1180" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="42" text-anchor="middle" font-size="24" font-weight="bold" fill="#222">MERT Architecture (MERT-v1-95M)</text>
+
+  <rect x="250" y="70" width="360" height="58" rx="10" fill="#cfe8ff"/>
+  <text x="430" y="95" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a3d5c">Input Waveform</text>
+  <text x="430" y="115" text-anchor="middle" font-size="12" fill="#333">24 kHz mono · shape (1, T)</text>
+
+  <line x1="430" y1="128" x2="430" y2="158" stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="162" width="360" height="118" rx="10" fill="#bfe3c8"/>
+  <text x="430" y="187" text-anchor="middle" font-size="15" font-weight="bold" fill="#1d5230">Convolutional Feature Encoder</text>
+  <text x="430" y="209" text-anchor="middle" font-size="12" fill="#222">7 × Conv1d · 512 channels</text>
+  <text x="430" y="227" text-anchor="middle" font-size="12" fill="#222">kernels (10,3,3,3,3,2,2) · strides (5,2,2,2,2,2,2)</text>
+  <text x="430" y="245" text-anchor="middle" font-size="12" fill="#222">total downsample ÷320 → 75 frames/sec</text>
+  <text x="430" y="266" text-anchor="middle" font-size="12" fill="#555">out: (T/320, 512)</text>
+
+  <line x1="430" y1="280" x2="430" y2="310" stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="314" width="360" height="76" rx="10" fill="#ffe3b3"/>
+  <text x="430" y="340" text-anchor="middle" font-size="15" font-weight="bold" fill="#7a4d00">Feature Projection</text>
+  <text x="430" y="360" text-anchor="middle" font-size="12" fill="#222">LayerNorm + Linear 512 → 768</text>
+  <text x="430" y="378" text-anchor="middle" font-size="12" fill="#555">out: (T/320, 768) = hidden state 0</text>
+
+  <line x1="430" y1="390" x2="430" y2="420" stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="424" width="360" height="112" rx="10" fill="#e6d4f5"/>
+  <text x="430" y="449" text-anchor="middle" font-size="15" font-weight="bold" fill="#4a2a6b">Transformer Encoder × 12</text>
+  <text x="430" y="471" text-anchor="middle" font-size="12" fill="#222">each layer: LN → MHSA (12 heads, dim 768)</text>
+  <text x="430" y="489" text-anchor="middle" font-size="12" fill="#222">→ LN → FFN (768 → 3072 → 768)</text>
+  <text x="430" y="510" text-anchor="middle" font-size="12" fill="#555">hidden states 1 … 12</text>
+
+  <line x1="430" y1="536" x2="430" y2="566" stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="570" width="360" height="76" rx="10" fill="#eeeeee"/>
+  <text x="430" y="596" text-anchor="middle" font-size="15" font-weight="bold" fill="#333">Output: 13 Hidden States</text>
+  <text x="430" y="616" text-anchor="middle" font-size="12" fill="#333">each (frames, 768) · 75 fps</text>
+  <text x="430" y="634" text-anchor="middle" font-size="11" fill="#777">layer 0 = conv projection · layers 1–12 = transformer</text>
+
+  <rect x="640" y="430" width="200" height="46" rx="8" fill="#eafbea" stroke="#3d8b4f"/>
+  <text x="740" y="449" text-anchor="middle" font-size="11" fill="#256b36" font-weight="bold">low layers</text>
+  <text x="740" y="465" text-anchor="middle" font-size="10.5" fill="#256b36">acoustic: pitch · beat</text>
+  <rect x="640" y="484" width="200" height="46" rx="8" fill="#fdeeee" stroke="#c1554f"/>
+  <text x="740" y="503" text-anchor="middle" font-size="11" fill="#8f2e28" font-weight="bold">high layers</text>
+  <text x="740" y="519" text-anchor="middle" font-size="10.5" fill="#8f2e28">semantic: genre · emotion</text>
+  <line x1="610" y1="453" x2="640" y2="453" stroke="#3d8b4f" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <line x1="610" y1="507" x2="640" y2="507" stroke="#c1554f" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+  <line x1="40" y1="680" x2="820" y2="680" stroke="#ccc" stroke-width="1"/>
+  <text x="430" y="712" text-anchor="middle" font-size="17" font-weight="bold" fill="#222">Pre-training: teacher–student pseudo-labeling (no labels needed)</text>
+
+  <rect x="90" y="740" width="310" height="110" rx="10" fill="#dbeafe" stroke="#5b8fc9"/>
+  <text x="245" y="764" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f4e79">Acoustic Teacher · RVQ-VAE</text>
+  <text x="245" y="786" text-anchor="middle" font-size="11.5" fill="#222">EnCodec-style codec tokens</text>
+  <text x="245" y="804" text-anchor="middle" font-size="11.5" fill="#222">8 codebooks × 1024 entries</text>
+  <text x="245" y="826" text-anchor="middle" font-size="11" fill="#555">captures timbre / spectral detail</text>
+
+  <rect x="460" y="740" width="310" height="110" rx="10" fill="#e8f0dc" stroke="#7a9b57"/>
+  <text x="615" y="764" text-anchor="middle" font-size="14" font-weight="bold" fill="#3f5c22">Music Teacher · masked CQT</text>
+  <text x="615" y="786" text-anchor="middle" font-size="11.5" fill="#222">CQT (nnAudio, on-the-fly) → mask</text>
+  <text x="615" y="804" text-anchor="middle" font-size="11.5" fill="#222">→ k-means cluster indices</text>
+  <text x="615" y="826" text-anchor="middle" font-size="11" fill="#555">captures pitch / harmony / tonality</text>
+
+  <line x1="245" y1="850" x2="380" y2="920" stroke="#555" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <line x1="615" y1="850" x2="480" y2="920" stroke="#555" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="430" y="893" text-anchor="middle" font-size="11" fill="#777">pseudo-labels</text>
+
+  <rect x="180" y="926" width="500" height="86" rx="10" fill="#f3e8ff" stroke="#8a5fc9"/>
+  <text x="430" y="951" text-anchor="middle" font-size="14" font-weight="bold" fill="#4a2a6b">Student = MERT Transformer (this model)</text>
+  <text x="430" y="973" text-anchor="middle" font-size="11.5" fill="#222">predicts teacher pseudo-labels at masked positions</text>
+  <text x="430" y="993" text-anchor="middle" font-size="11" fill="#555">masking + dual teachers → layer specialization</text>
+
+  <text x="430" y="1050" text-anchor="middle" font-size="12" fill="#666">MERT-v1-95M: 12 layers / 768 dim / 12 heads · ~160k training tracks</text>
+  <text x="430" y="1072" text-anchor="middle" font-size="12" fill="#666">MERT-v1-330M: 24 layers / 1024 dim / 16 heads · ~21M training tracks</text>
+  <text x="430" y="1110" text-anchor="middle" font-size="11" fill="#999">paper: arXiv 2306.00107 (ICLR 2024) · code: github.com/yizhilll/MERT · models: huggingface.co/m-a-p</text>
+</svg>
